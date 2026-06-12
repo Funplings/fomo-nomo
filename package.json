@@ -2,6 +2,7 @@
   "name": "fomo-nomo",
   "private": true,
   "type": "module",
+  "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
     "test": "node --test"

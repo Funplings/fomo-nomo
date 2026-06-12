@@ -1,5 +1,5 @@
 import { createServer } from "node:http";
-import { buildCustomDigest, loadConfig } from "./app.js";
+import { buildCustomDigest, loadConfig } from "./core.js";
 import { inferSourceType } from "./sources.js";
 import { renderWebApp } from "./web.js";
 
@@ -54,7 +54,7 @@ export async function handler(request, response) {
       return;
     }
     if (pathname === "/") {
-      const defaults = await loadConfig();
+      const defaults = loadConfig();
       response.setHeader("content-type", "text/html; charset=utf-8");
       response.end(renderWebApp(defaults));
       return;
@@ -68,9 +68,10 @@ export async function handler(request, response) {
   }
 }
 
-// Listen locally, and on hosts that provide a PORT and expect a real server
-// (e.g. Vercel's Node server builds). Vercel's classic functions instead call
-// the exported handler directly via api/index.js.
-if (!process.env.VERCEL || process.env.PORT) {
+// Vercel's Node backend build imports this module (via the package.json main
+// field) and invokes the default export per request; locally we listen.
+export default handler;
+
+if (!process.env.VERCEL) {
   createServer(handler).listen(port, () => console.log(`FOMO NoMo running at http://localhost:${port}`));
 }

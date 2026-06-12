@@ -1,14 +1,12 @@
-import { readFile } from "node:fs/promises";
-import path from "node:path";
+import defaultSources from "../config/sources.json" with { type: "json" };
+import defaultPreferences from "../config/preferences.json" with { type: "json" };
 import { fetchSource } from "./sources.js";
-import { mergeEvents, root, upcomingEvents } from "./events.js";
+import { mergeEvents, upcomingEvents } from "./events.js";
 
-export async function loadConfig() {
-  const [sources, preferences] = await Promise.all([
-    readFile(path.join(root, "config", "sources.json"), "utf8"),
-    readFile(path.join(root, "config", "preferences.json"), "utf8")
-  ]);
-  return { sources: JSON.parse(sources), preferences: JSON.parse(preferences) };
+// Static imports keep the config files inside the serverless bundle; reading
+// them from disk at runtime fails on Vercel because they are never traced.
+export function loadConfig() {
+  return { sources: defaultSources, preferences: defaultPreferences };
 }
 
 export async function buildCustomDigest(sources, preferences, now = new Date()) {
