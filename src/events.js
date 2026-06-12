@@ -1,7 +1,12 @@
 import { createHash } from "node:crypto";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
-export const root = path.resolve(import.meta.dirname, "..");
+// On Vercel the function runs with the project root as its working directory,
+// and import.meta may not survive the build transform — so avoid it there.
+export const root = process.env.VERCEL
+  ? process.cwd()
+  : path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 export function fingerprint(event) {
   const key = [

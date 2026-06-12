@@ -68,6 +68,9 @@ export async function handler(request, response) {
   }
 }
 
-if (!process.env.VERCEL) {
+// Listen locally, and on hosts that provide a PORT and expect a real server
+// (e.g. Vercel's Node server builds). Vercel's classic functions instead call
+// the exported handler directly via api/index.js.
+if (!process.env.VERCEL || process.env.PORT) {
   createServer(handler).listen(port, () => console.log(`FOMO NoMo running at http://localhost:${port}`));
 }
