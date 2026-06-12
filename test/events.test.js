@@ -2,7 +2,6 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { mergeEvents, normalizeEvent, upcomingEvents } from "../src/events.js";
 import { inferSourceType, parseEventbriteEvents, parseIcs, parseJsonLd, parsePartifulEvents, parseSquareClasses } from "../src/sources.js";
-import { renderDigest } from "../src/digest.js";
 
 const source = { id: "venue", name: "Venue", categories: ["music"] };
 
@@ -106,15 +105,4 @@ test("parses upcoming Eventbrite organizer events", () => {
   assert.equal(events[0].title, "Next Event");
   assert.equal(events[0].price, "$12.50");
   assert.equal(events[0].address, "45 Irving Ave, Brooklyn, NY");
-});
-
-test("renders a calendar digest", () => {
-  const event = normalizeEvent({ title: "Painting", start: "2026-06-20T18:00:00Z" }, source);
-  const html = renderDigest([event], {
-    lookaheadDays: 14
-  }, new Date("2026-06-12T12:00:00Z"));
-  assert.match(html, /class="calendar"/);
-  assert.match(html, /What's Happening\?/);
-  assert.match(html, /Jun 20/);
-  assert.match(html, /Painting/);
 });

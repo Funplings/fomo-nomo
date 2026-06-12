@@ -1,6 +1,6 @@
-# Open Calendar
+# FOMO NoMo
 
-A small web app that gathers local events, deduplicates them, and renders a personalized calendar.
+FOMO no more: a small web app that gathers local events, deduplicates them, and renders a personalized calendar.
 
 Each visitor's sources, source colors, and date range are stored in their browser's `localStorage`. The server is stateless: it fetches and parses supported public event sources when the visitor refreshes their calendar.
 
@@ -9,7 +9,6 @@ Each visitor's sources, source colors, and date range are stored in their browse
 Requires Node.js 20 or newer.
 
 ```sh
-npm run ingest
 npm start
 ```
 
@@ -40,16 +39,4 @@ npm start
 
 The server reads the host-provided `PORT` environment variable and does not require a database. User settings remain in each visitor's browser.
 
-## Email delivery
-
-Email uses Resend:
-
-```sh
-RESEND_API_KEY=re_... DIGEST_TO=you@example.com npm run send
-```
-
-For repeat local sends, put those values in an ignored `.env` file and run `npm run send`.
-
-Set `DIGEST_FROM` after verifying your sending domain. The included GitHub Actions workflow expects `RESEND_API_KEY`, `DIGEST_TO`, and optionally `DIGEST_FROM` as repository secrets.
-
-The workflow ingests at `07:00 UTC` and sends at `12:00 UTC` each day. GitHub cron schedules use UTC, so adjust those values in `.github/workflows/event-digest.yml` for your preferred morning time.
+On Vercel, `vercel.json` routes every request to the single function in `api/index.js` and bundles the `config/` defaults alongside it.

@@ -1,5 +1,5 @@
 import { createServer } from "node:http";
-import { buildCustomDigest, buildDigest, ingest, loadConfig } from "./app.js";
+import { buildCustomDigest, loadConfig } from "./app.js";
 import { inferSourceType } from "./sources.js";
 import { renderWebApp } from "./web.js";
 
@@ -43,37 +43,20 @@ function cleanPreferences(preferences = {}) {
   };
 }
 
-const server = createServer(async (request, response) => {
+export async function handler(request, response) {
   try {
-    if (request.url === "/api/events" && request.method === "GET") {
-      const { events } = await buildDigest();
-      response.setHeader("content-type", "application/json");
-      response.end(JSON.stringify(events, null, 2));
-      return;
-    }
-    if (request.url === "/api/events" && request.method === "POST") {
+    const { pathname } = new URL(request.url, "http://localhost");
+    if (pathname === "/api/events" && request.method === "POST") {
       const body = await readJson(request);
       const result = await buildCustomDigest(cleanCustomSources(body.sources), cleanPreferences(body.preferences));
       response.setHeader("content-type", "application/json");
       response.end(JSON.stringify(result));
       return;
     }
-    if (request.url === "/api/ingest" && request.method === "POST") {
-      const result = await ingest();
-      response.setHeader("content-type", "application/json");
-      response.end(JSON.stringify({ imported: result.imported, stored: result.events.length, failures: result.failures }));
-      return;
-    }
-    if (request.url === "/") {
+    if (pathname === "/") {
       const defaults = await loadConfig();
       response.setHeader("content-type", "text/html; charset=utf-8");
       response.end(renderWebApp(defaults));
-      return;
-    }
-    if (request.url === "/digest") {
-      const { html } = await buildDigest();
-      response.setHeader("content-type", "text/html; charset=utf-8");
-      response.end(html);
       return;
     }
     response.statusCode = 404;
@@ -83,6 +66,8 @@ const server = createServer(async (request, response) => {
     response.setHeader("content-type", "application/json");
     response.end(JSON.stringify({ error: error.message }));
   }
-});
+}
 
-server.listen(port, () => console.log(`Event digest running at http://localhost:${port}`));
+if (!process.env.VERCEL) {
+  createServer(handler).listen(port, () => console.log(`FOMO NoMo running at http://localhost:${port}`));
+}

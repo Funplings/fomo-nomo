@@ -1,9 +1,7 @@
 import { createHash } from "node:crypto";
-import { readFile, writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
 
 export const root = path.resolve(import.meta.dirname, "..");
-const dataPath = path.join(root, "data", "events.json");
 
 export function fingerprint(event) {
   const key = [
@@ -34,20 +32,6 @@ export function normalizeEvent(raw, source) {
   };
 
   return { ...event, id: raw.id || fingerprint(event) };
-}
-
-export async function loadEvents() {
-  try {
-    return JSON.parse(await readFile(dataPath, "utf8"));
-  } catch (error) {
-    if (error.code === "ENOENT") return [];
-    throw error;
-  }
-}
-
-export async function saveEvents(events) {
-  await mkdir(path.dirname(dataPath), { recursive: true });
-  await writeFile(dataPath, `${JSON.stringify(events, null, 2)}\n`);
 }
 
 export function mergeEvents(existing, incoming) {

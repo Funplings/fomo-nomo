@@ -3,7 +3,7 @@ const safeJson = (value) => JSON.stringify(value).replaceAll("<", "\\u003c");
 export function renderWebApp(defaults) {
   return `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Open Calendar</title>
+<title>FOMO NoMo</title>
 <style>
 *{box-sizing:border-box}button,input{font:inherit}body{margin:0;background:#f1eee5;color:#20231d;font:15px/1.35 Arial,sans-serif}
 button{cursor:pointer}.shell{min-height:100vh}.topbar{align-items:center;border-bottom:1px solid #b8b2a4;display:flex;gap:16px;justify-content:space-between;padding:13px 20px;position:sticky;top:0;background:#f1eee5eF;backdrop-filter:blur(12px);z-index:5}
@@ -15,19 +15,19 @@ button{cursor:pointer}.shell{min-height:100vh}.topbar{align-items:center;border-
 .dialog{background:#f8f5ec;border:1px solid #20231d;box-shadow:0 15px 60px #0003;max-width:500px;padding:24px;width:calc(100% - 28px)}dialog::backdrop{background:#20231d99}.dialog h2{margin-bottom:18px}.dialog-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}
 @media(max-width:900px){.layout{display:block}aside{border-bottom:1px solid #b8b2a4;border-right:0}.content{padding:24px 14px 50px}.calendar{display:none}.agenda{display:block}.agenda-day{border-top:1px solid #b8b2a4;padding:16px 0}.agenda-day h3{font:22px Georgia,serif;margin:0 0 10px}.event{padding:10px}.event-title{font-size:18px}.event-time,.event-meta{font-size:11px}.topbar{padding:12px 14px}.status{display:none}}
 </style></head><body><div class="shell">
-<nav class="topbar"><div class="brand">Open <span>Calendar</span></div><div class="top-actions"><span class="status" id="status">Your settings stay in this browser</span><button class="button primary" id="refresh">Refresh events</button></div></nav>
+<nav class="topbar"><div class="brand">FOMO <span>NoMo</span></div><div class="top-actions"><span class="status" id="status">Your settings stay in this browser</span><button class="button primary" id="refresh">Refresh events</button></div></nav>
 <div class="layout"><aside><div class="side-head"><div class="side-title"><h2>Sources</h2><button class="info-button" aria-describedby="sources-tooltip" aria-label="Supported source types">i</button><div class="info-tooltip" id="sources-tooltip" role="tooltip"><strong>Supported sources</strong>Square classes, Luma calendars, Partiful profiles, and Eventbrite organizers.</div></div><button class="small-button" id="add-source">+ Add</button></div><div id="sources"></div>
 <div class="settings"><h2>Settings</h2><label class="field"><span>Days ahead</span><input id="days" type="number" min="1" max="60"></label></div>
 <p class="provider-note">Settings are stored only in localStorage.</p></aside>
 <main class="content"><div class="hero"><div><h1>What's Happening?</h1><p id="summary"></p></div></div><div id="calendar"><div class="message">Loading your calendar...</div></div></main></div></div>
 <dialog class="dialog" id="source-dialog"><form method="dialog" id="source-form"><h2 id="source-dialog-title">Add a source</h2><label class="field"><span>Name</span><input id="source-name" placeholder="Recess Grove" required></label><label class="field" id="source-url-field"><span>Public source URL</span><input id="source-url" type="url" placeholder="https://..." required></label><label class="field"><span>Color</span><input id="source-color" type="color"></label><div class="dialog-actions"><button class="button" id="source-cancel" type="button">Cancel</button><button class="button primary" id="source-save" value="default">Add source</button></div></form></dialog>
 <script>const DEFAULTS=${safeJson(defaults)};
-const KEY="open-calendar-settings-v1",PALETTE=["#d97757","#6688c5","#9b72b0","#5f9b72","#d0a43c","#b85c7a","#4e9ca1","#8b795e"];let state=loadState(),events=[],editingSourceIndex=null;
+const KEY="fomo-nomo-settings-v1",LEGACY_KEY="open-calendar-settings-v1",PALETTE=["#d97757","#6688c5","#9b72b0","#5f9b72","#d0a43c","#b85c7a","#4e9ca1","#8b795e"];let state=loadState(),events=[],editingSourceIndex=null;
 const $=(id)=>document.getElementById(id);const esc=(v="")=>String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 function validColor(color,index=0){return /^#[0-9a-f]{6}$/i.test(color||"")?color:PALETTE[index%PALETTE.length]}
 function tint(color){const c=validColor(color);return c+"35"}
 function hydrate(value){value.sources=(value.sources||[]).map((source,index)=>({...source,color:validColor(source.color,index)}));return value}
-function loadState(){try{return hydrate(JSON.parse(localStorage.getItem(KEY))||structuredClone(DEFAULTS))}catch{return hydrate(structuredClone(DEFAULTS))}}
+function loadState(){try{return hydrate(JSON.parse(localStorage.getItem(KEY)||localStorage.getItem(LEGACY_KEY))||structuredClone(DEFAULTS))}catch{return hydrate(structuredClone(DEFAULTS))}}
 function save(){localStorage.setItem(KEY,JSON.stringify(state));renderSources();renderHeader()}
 function typeFor(url){if(url.includes("squareup.com"))return"square";if(url.includes("partiful.com"))return"partiful";if(url.includes("eventbrite.com"))return"eventbrite";if(url.includes("luma.com"))return"luma";return"web"}
 function renderSources(){const host=$("sources");host.innerHTML="";if(!state.sources.length){host.innerHTML='<div class="empty-sources">No sources yet. Add one to begin.</div>';return}state.sources.forEach((source,index)=>{const el=document.createElement("div");el.className="source";el.innerHTML='<div class="source-row"><input type="checkbox" '+(source.enabled!==false?"checked":"")+'><span class="source-swatch" style="background:'+validColor(source.color,index)+'"></span><span class="source-name">'+esc(source.name)+'</span><span class="source-type">'+typeFor(source.url)+'</span><button class="edit-source">Edit</button><button class="remove" title="Remove source">×</button></div><div class="source-url">'+esc(source.url)+'</div>';const [check,,,,edit,remove]=el.querySelector(".source-row").children;check.onchange=()=>{source.enabled=check.checked;save()};edit.onclick=()=>openSourceDialog(index);remove.onclick=()=>{state.sources.splice(index,1);save();refresh()};host.append(el)})}

@@ -165,7 +165,7 @@ export function parseEventbriteEvents(events, source, now = new Date()) {
 
 async function readSource(source) {
   if (source.url) {
-    const response = await fetch(source.url, { headers: { "user-agent": "LocalEventDigest/0.1" } });
+    const response = await fetch(source.url, { headers: { "user-agent": "FomoNomo/0.1" } });
     if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
     return response.text();
   }
@@ -191,7 +191,7 @@ async function fetchSquareSource(source) {
         "content-type": "application/json",
         origin: "https://book.squareup.com",
         referer: `https://book.squareup.com/classes/${widgetId}/location/${locationId}/classes`,
-        "user-agent": "LocalEventDigest/0.1"
+        "user-agent": "FomoNomo/0.1"
       },
       body: JSON.stringify({
         ...(cursor ? { cursor } : {}),
@@ -237,7 +237,7 @@ async function fetchEventbriteSource(source) {
 
   do {
     const apiUrl = `https://www.eventbrite.com/organizer-profile/api/organizers/${match[1]}/events/?page=${page}&pageSize=12`;
-    const response = await fetch(apiUrl, { headers: { accept: "application/json", "user-agent": "LocalEventDigest/0.1" } });
+    const response = await fetch(apiUrl, { headers: { accept: "application/json", "user-agent": "FomoNomo/0.1" } });
     if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
     const payload = await response.json();
     rawEvents.push(...(payload.events || []));
