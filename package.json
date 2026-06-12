@@ -1,0 +1,14 @@
+{
+  "name": "local-event-digest",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "ingest": "node src/cli.js ingest",
+    "send": "node --env-file=.env src/cli.js send",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

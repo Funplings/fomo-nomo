@@ -1,0 +1,39 @@
+[
+  {
+    "id": "recess-grove",
+    "name": "Recess Grove",
+    "type": "square",
+    "url": "https://book.squareup.com/classes/ug7iad378g5yho/location/LR3E6CBQNN96A/classes",
+    "address": "327 Grand St, Brooklyn, NY 11211",
+    "enabled": true,
+    "color": "#d97757",
+    "categories": ["art", "class"]
+  },
+  {
+    "id": "luma-nyc-tech",
+    "name": "Fractal Campus NYC",
+    "type": "jsonld",
+    "url": "https://luma.com/nyc-tech",
+    "enabled": true,
+    "color": "#6688c5",
+    "categories": ["technology", "community"]
+  },
+  {
+    "id": "merlins-place",
+    "name": "Merlin's Place",
+    "type": "partiful",
+    "url": "https://partiful.com/u/oHwg9ttnChg5QwbgxfLv",
+    "enabled": true,
+    "color": "#9b72b0",
+    "categories": ["community", "art"]
+  },
+  {
+    "id": "nook-eventbrite",
+    "name": "Nook",
+    "type": "eventbrite",
+    "url": "https://www.eventbrite.com/o/nook-34738528343",
+    "enabled": true,
+    "color": "#5f9b72",
+    "categories": ["community", "art"]
+  }
+]

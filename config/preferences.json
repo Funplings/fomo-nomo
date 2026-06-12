@@ -1,0 +1,5 @@
+{
+  "lookaheadDays": 14,
+  "favoriteCategories": ["film", "music", "art", "talk"],
+  "blockedCategories": []
+}
