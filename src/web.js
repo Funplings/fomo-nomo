@@ -39,5 +39,10 @@ async function refresh(){const button=$("refresh"),status=$("status");button.dis
 function openSourceDialog(index=null){editingSourceIndex=index;const editing=index!==null,source=editing?state.sources[index]:null;$("source-dialog-title").textContent=editing?"Edit source":"Add a source";$("source-save").textContent=editing?"Save changes":"Add source";$("source-url-field").hidden=editing;$("source-url").required=!editing;$("source-name").value=source?.name||"";$("source-url").value=source?.url||"";$("source-color").value=source?.color||PALETTE[state.sources.length%PALETTE.length];$("source-dialog").showModal()}
 $("source-cancel").onclick=()=>{$("source-dialog").close();$("source-form").reset();editingSourceIndex=null};$("add-source").onclick=()=>openSourceDialog();$("source-form").onsubmit=e=>{e.preventDefault();const name=$("source-name").value.trim(),color=$("source-color").value;if(editingSourceIndex!==null){state.sources[editingSourceIndex].name=name;state.sources[editingSourceIndex].color=color;$("source-dialog").close();save();renderCalendar();return}const url=$("source-url").value.trim();state.sources.push({id:"custom-"+Date.now(),name,url,color,enabled:true,categories:[]});$("source-dialog").close();e.target.reset();save();refresh()};
 $("days").onchange=()=>{state.preferences.lookaheadDays=Math.min(60,Math.max(1,Number($("days").value)||14));save();refresh()};$("refresh").onclick=refresh;renderSources();renderHeader();refresh();
-</script></body></html>`;
+</script>
+<script type="module">
+import { inject } from 'https://cdn.jsdelivr.net/npm/@vercel/analytics@1/dist/index.js';
+inject();
+</script>
+</body></html>`;
 }
