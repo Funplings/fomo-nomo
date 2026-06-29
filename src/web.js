@@ -4,6 +4,10 @@ export function renderWebApp(defaults) {
   return `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>FOMO NoMo</title>
+<script>
+  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
 <style>
 *{box-sizing:border-box}button,input{font:inherit}body{margin:0;background:#f1eee5;color:#20231d;font:15px/1.35 Arial,sans-serif}
 button{cursor:pointer}.shell{min-height:100vh}.topbar{align-items:center;border-bottom:1px solid #b8b2a4;display:flex;gap:16px;justify-content:space-between;padding:13px 20px;position:sticky;top:0;background:#f1eee5eF;backdrop-filter:blur(12px);z-index:5}
