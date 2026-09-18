@@ -2,10 +2,13 @@ import { createShareCodec } from "./share.js";
 
 const safeJson = (value) => JSON.stringify(value).replaceAll("<", "\\u003c");
 
+const favicon = "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" fill="#20231d"/><path d="M6 9h20v17H6z" fill="#f1eee5"/><path d="M6 9h20v6H6z" fill="#68765f"/><path d="M11 6v6M21 6v6" stroke="#f1eee5" stroke-width="2"/><path d="M10 18h4v4h-4zM18 18h4v4h-4z" fill="#68765f"/></svg>');
+
 export function renderWebApp(defaults) {
   return `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>fomo-nomo</title>
+<link rel="icon" type="image/svg+xml" href="${favicon}">
 <style>
 *{box-sizing:border-box}button,input{font:inherit}body{margin:0;background:#f1eee5;color:#20231d;font:15px/1.35 Arial,sans-serif}
 button{cursor:pointer}.shell{min-height:100vh;display:flex;flex-direction:column}.footer{padding:14px 20px;text-align:right;border-top:1px solid #b8b2a4}.topbar{align-items:center;border-bottom:1px solid #b8b2a4;display:flex;gap:16px;justify-content:space-between;padding:13px 20px;position:sticky;top:0;background:#f1eee5eF;backdrop-filter:blur(12px);z-index:5}
