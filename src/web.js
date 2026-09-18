@@ -237,7 +237,7 @@ window.addEventListener("hashchange",()=>{dismissUndo();initialize()});
 const ready=initialize();
 </script>
 <script type="module">
-import { inject } from 'https://cdn.jsdelivr.net/npm/@vercel/analytics@1/dist/index.js';
+import { inject } from 'https://cdn.jsdelivr.net/npm/@vercel/analytics@2/dist/index.mjs';
 inject();
 </script>
 </body></html>`;
