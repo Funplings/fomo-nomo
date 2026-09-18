@@ -37,22 +37,29 @@ function cleanCustomSources(sources) {
 
 export async function handler(request, response) {
   try {
-    const { pathname } = new URL(request.url, "http://localhost");
-    if (pathname === "/api/events" && request.method === "POST") {
+    const { pathname, searchParams } = new URL(request.url, "http://localhost");
+    // Vercel can pass the rewritten destination instead of the browser's path.
+    const functionPath = pathname === "/api" || pathname === "/api/";
+    const eventsRoute = pathname === "/api/events" ||
+      (functionPath && searchParams.get("route") === "events");
+    const homeRoute = pathname === "/" ||
+      (functionPath && searchParams.get("route") === "home");
+    if (eventsRoute && request.method === "POST") {
       const body = await readJson(request);
       const result = await buildCustomDigest(cleanCustomSources(body.sources));
       response.setHeader("content-type", "application/json");
       response.end(JSON.stringify(result));
       return;
     }
-    if (pathname === "/") {
+    if (homeRoute && (request.method === "GET" || request.method === "HEAD")) {
       const defaults = loadConfig();
       response.setHeader("content-type", "text/html; charset=utf-8");
       response.end(renderWebApp(defaults));
       return;
     }
     response.statusCode = 404;
-    response.end("Not found");
+    response.setHeader("content-type", "application/json");
+    response.end(JSON.stringify({ error: "Not found" }));
   } catch (error) {
     response.statusCode = error instanceof SyntaxError || /Provide|Source|supported|large/.test(error.message) ? 400 : 500;
     response.setHeader("content-type", "application/json");

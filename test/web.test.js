@@ -5,7 +5,7 @@ import { setImmediate } from "node:timers/promises";
 import { renderWebApp } from "../src/web.js";
 
 // Run the delivered client script with minimal DOM and storage substitutes.
-async function loadApp(savedState, events = [], hash = "") {
+async function loadApp(savedState, events = [], hash = "", responseOverride = null) {
   const html = renderWebApp({ sources: [] });
   const elements = new Map([...html.matchAll(/id="([^"]+)"/g)].map(([, id]) => [id, {
     value: "", hidden: false, innerHTML: "", textContent: "", style: {}, children: [],
@@ -32,7 +32,7 @@ async function loadApp(savedState, events = [], hash = "") {
     localStorage: { getItem: (key) => storage.get(key), setItem: (key, value) => storage.set(key, value) },
     fetch: async (url, options) => {
       requests.push(JSON.parse(options.body));
-      return { ok: true, json: async () => ({ events, failures: [] }) };
+      return responseOverride || { ok: true, json: async () => ({ events, failures: [] }) };
     }
   });
   vm.runInContext(html.match(/<script>([\s\S]*?)<\/script>/)[1], context);
@@ -183,4 +183,14 @@ test("drag handle commits the drop position and cancellation preserves source or
   handle.onpointerup(pointer);
   assert.deepEqual(JSON.parse(app.storage.get("fomo-nomo-settings-v1")).sources, [sources[1], sources[2], sources[0]]);
   assert.equal(rows[0].style.transform, "");
+});
+
+
+test("non-JSON server errors show a useful message instead of a JSON syntax error", async () => {
+  const app = await loadApp({ sources: [] }, [], "", {
+    ok: false, status: 404, json: async () => { throw new SyntaxError("Unexpected token N"); }
+  });
+  assert.match(app.elements.get("status").textContent, /events endpoint was not found/);
+  assert.doesNotMatch(app.elements.get("calendar").innerHTML, /Unexpected token/);
+  assert.equal(app.elements.get("refresh").disabled, false);
 });
