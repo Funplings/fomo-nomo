@@ -13,13 +13,15 @@ test("normalizes and deduplicates events", () => {
   assert.equal(merged[0].price, "$10");
 });
 
-test("ranks favorite categories", () => {
+test("includes all upcoming events in date order without a future cutoff", () => {
   const events = [
+    normalizeEvent({ title: "Distant", start: "2028-06-15" }, source),
+    normalizeEvent({ title: "Past", start: "2026-06-01" }, source),
     normalizeEvent({ title: "Talk", start: "2026-06-14", categories: ["talk"] }, source),
     normalizeEvent({ title: "Film", start: "2026-06-15", categories: ["film"] }, source)
   ];
-  const ranked = upcomingEvents(events, { lookaheadDays: 7, favoriteCategories: ["film"] }, new Date("2026-06-12"));
-  assert.equal(ranked[0].title, "Film");
+  const upcoming = upcomingEvents(events, new Date("2026-06-12"));
+  assert.deepEqual(upcoming.map((event) => event.title), ["Talk", "Film", "Distant"]);
 });
 
 test("parses ICS and JSON-LD", () => {
@@ -70,10 +72,12 @@ test("parses Square class instances", () => {
 test("parses upcoming Partiful profile events", () => {
   const payload = { result: { data: [
     { id: "old", title: "Old Event", startDate: "2026-06-01T18:00:00Z", status: "PUBLISHED" },
-    { id: "next", title: "Next Event", startDate: "2026-06-20T18:00:00Z", status: "PUBLISHED", ticketing: { price: 10 } }
+    { id: "next", title: "Next Event", startDate: "2026-06-20T18:00:00Z", status: "PUBLISHED", ticketing: { price: 10 } },
+    { id: "distant", title: "Distant Event", startDate: "2028-06-20T18:00:00Z", status: "PUBLISHED" },
+    { id: "draft", title: "Draft Event", startDate: "2028-06-20T18:00:00Z", status: "DRAFT" }
   ] } };
   const events = parsePartifulEvents(payload, { name: "Venue", lookaheadDays: 30 }, new Date("2026-06-12T00:00:00Z"));
-  assert.equal(events.length, 1);
+  assert.deepEqual(events.map((event) => event.id), ["next", "distant"]);
   assert.equal(events[0].title, "Next Event");
   assert.equal(events[0].price, "$10.00");
 });
@@ -98,10 +102,12 @@ test("parses upcoming Eventbrite organizer events", () => {
         is_free: false,
         minimum_ticket_price: { major_value: "12.50", display: "12.50 USD" }
       }
-    }
+    },
+    { id: "distant", name: "Distant Event", start_date: "2028-06-20", start_time: "18:00:00" },
+    { id: "cancelled", name: "Cancelled Event", start_date: "2028-06-20", start_time: "18:00:00", is_cancelled: true }
   ];
   const events = parseEventbriteEvents(payload, { name: "Nook", lookaheadDays: 30 }, new Date("2026-06-12T00:00:00"));
-  assert.equal(events.length, 1);
+  assert.deepEqual(events.map((event) => event.id), ["next", "distant"]);
   assert.equal(events[0].title, "Next Event");
   assert.equal(events[0].price, "$12.50");
   assert.equal(events[0].address, "45 Irving Ave, Brooklyn, NY");

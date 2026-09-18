@@ -113,12 +113,9 @@ export function parseSquareClasses(payload, source) {
 }
 
 export function parsePartifulEvents(payload, source, now = new Date()) {
-  const end = new Date(now);
-  end.setDate(end.getDate() + (source.lookaheadDays || 60));
-
   return (payload.result?.data || []).filter((event) => {
     const start = new Date(event.startDate);
-    return start >= now && start <= end && event.status === "PUBLISHED";
+    return start >= now && event.status === "PUBLISHED";
   }).map((event) => ({
     id: event.id,
     title: event.title,
@@ -133,12 +130,9 @@ export function parsePartifulEvents(payload, source, now = new Date()) {
 }
 
 export function parseEventbriteEvents(events, source, now = new Date()) {
-  const end = new Date(now);
-  end.setDate(end.getDate() + (source.lookaheadDays || 60));
-
   return events.filter((event) => {
     const start = new Date(`${event.start_date}T${event.start_time}`);
-    return !event.is_cancelled && start >= now && start <= end;
+    return !event.is_cancelled && start >= now;
   }).map((event) => {
     const ticket = event.ticket_availability;
     const amount = Number(ticket?.minimum_ticket_price?.major_value);
@@ -177,8 +171,6 @@ async function fetchSquareSource(source) {
   if (!match) throw new Error("Square source URL must be a Square classes listing URL");
   const [, widgetId, locationId] = match;
   const start = new Date();
-  const end = new Date(start);
-  end.setDate(end.getDate() + (source.lookaheadDays || 60));
   const apiUrl = `https://app.squareup.com/appointments/api/buyer/classes/class_schedule_instances/search?unit_token=${locationId}`;
   const rawEvents = [];
   let cursor;
@@ -199,7 +191,7 @@ async function fetchSquareSource(source) {
         query: {
           filter: {
             location_id: locationId,
-            starting_at: { start_at: start.toISOString(), end_at: end.toISOString() },
+            starting_at: { start_at: start.toISOString() },
             status: "CLASS_SCHEDULE_ACTIVE"
           }
         },

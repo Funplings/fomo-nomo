@@ -1,8 +1,8 @@
-# FOMO NoMo
+# fomo-nomo
 
 FOMO no more: a small web app that gathers local events, deduplicates them, and renders a personalized calendar.
 
-Each visitor's sources, source colors, and date range are stored in their browser's `localStorage`. The server is stateless: it fetches and parses supported public event sources when the visitor refreshes their calendar.
+The browser stores each visitor's sources and source colors in `localStorage`. The server is stateless: it fetches and parses supported public event sources when the visitor refreshes their calendar.
 
 ## Run it
 
@@ -12,9 +12,17 @@ Requires Node.js 20 or newer.
 npm start
 ```
 
-Open `http://localhost:3100`. Edit `config/preferences.json` to tune ranking and `config/sources.json` to add sources.
+Open `http://localhost:3100`. Edit `config/sources.json` to add default sources.
 
-The config files provide defaults for first-time visitors. After that, visitors manage their own settings from the web app.
+The config file provides default sources for new visitors. Visitors can add sources and edit source names, URLs, and colors in the web app.
+
+Each refresh collects upcoming events without a date limit. The calendar extends through the latest event that the sources return.
+
+Use **Share**, then **Copy link**, to share a calendar. The URL contains compressed source names, URLs, colors, and enabled states. Source edits update the URL automatically.
+
+A shared link restores its sources and fetches current events. Opening a link leaves saved browser sources intact until you edit the shared calendar. Each link is a snapshot: later edits require a new link.
+
+For other people to open a calendar, share a link from the deployed site. A localhost link works only on the computer that runs the app.
 
 Supported source types:
 
@@ -37,6 +45,6 @@ Deploy it to any Node.js host using:
 npm start
 ```
 
-The server reads the host-provided `PORT` environment variable and does not require a database. User settings remain in each visitor's browser.
+The server reads the host-provided `PORT` environment variable and does not require a database. The sources remain in each visitor's browser.
 
 On Vercel, `vercel.json` routes every request to the single function in `api/index.js` and bundles the `config/` defaults alongside it.

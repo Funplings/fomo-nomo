@@ -35,20 +35,12 @@ function cleanCustomSources(sources) {
   });
 }
 
-function cleanPreferences(preferences = {}) {
-  return {
-    lookaheadDays: Math.min(60, Math.max(1, Number(preferences.lookaheadDays) || 14)),
-    favoriteCategories: Array.isArray(preferences.favoriteCategories) ? preferences.favoriteCategories.map(String).slice(0, 20) : [],
-    blockedCategories: Array.isArray(preferences.blockedCategories) ? preferences.blockedCategories.map(String).slice(0, 20) : []
-  };
-}
-
 export async function handler(request, response) {
   try {
     const { pathname } = new URL(request.url, "http://localhost");
     if (pathname === "/api/events" && request.method === "POST") {
       const body = await readJson(request);
-      const result = await buildCustomDigest(cleanCustomSources(body.sources), cleanPreferences(body.preferences));
+      const result = await buildCustomDigest(cleanCustomSources(body.sources));
       response.setHeader("content-type", "application/json");
       response.end(JSON.stringify(result));
       return;
@@ -73,5 +65,5 @@ export async function handler(request, response) {
 export default handler;
 
 if (!process.env.VERCEL) {
-  createServer(handler).listen(port, () => console.log(`FOMO NoMo running at http://localhost:${port}`));
+  createServer(handler).listen(port, () => console.log(`fomo-nomo running at http://localhost:${port}`));
 }

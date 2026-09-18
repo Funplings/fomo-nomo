@@ -47,20 +47,8 @@ export function mergeEvents(existing, incoming) {
   return [...merged.values()].sort((a, b) => new Date(a.start) - new Date(b.start));
 }
 
-export function upcomingEvents(events, preferences, now = new Date()) {
-  const end = new Date(now);
-  end.setDate(end.getDate() + (preferences.lookaheadDays || 14));
-  const favorites = new Set(preferences.favoriteCategories || []);
-  const blocked = new Set(preferences.blockedCategories || []);
-
+export function upcomingEvents(events, now = new Date()) {
   return events
-    .filter((event) => {
-      const start = new Date(event.start);
-      return start >= now && start <= end && !event.categories.some((category) => blocked.has(category));
-    })
-    .map((event) => ({
-      ...event,
-      score: event.categories.reduce((score, category) => score + (favorites.has(category) ? 3 : 0), 0)
-    }))
-    .sort((a, b) => b.score - a.score || new Date(a.start) - new Date(b.start));
+    .filter((event) => new Date(event.start) >= now)
+    .sort((a, b) => new Date(a.start) - new Date(b.start));
 }
